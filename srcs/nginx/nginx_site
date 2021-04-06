@@ -1,0 +1,35 @@
+server {
+	listen 80;
+	server_name localhost;
+	return 302 https://$server_name$request_uri;
+}
+
+server {
+	listen 443 ssl;
+	server_name localhost;
+
+	ssl on;	
+	ssl_certificate /etc/ssl/certs/ft_server.jballest.cert;
+	ssl_certificate_key /etc/ssl/private/ft_server.jballest.key;
+	
+	root /var/www/html;
+
+	index index_jballest.html index.htm index.php;
+
+
+	location / {
+		autoindex off;
+		try_files $uri $uri/ =404;
+	}
+
+	location ~ \.php$ {
+		fastcgi_pass unix:/run/php/php7.3-fpm.sock;
+		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+		include fastcgi_params;
+		include snippets/fastcgi-php.conf;
+	}
+
+	location ~ /\.ht {
+		deny all;
+	}
+}
